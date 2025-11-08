@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.title-container {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  border-width: 2px;
+  border-color: rgb(55 65 81 / var(--tw-border-opacity, 1));
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+}
+
+.title-text {
+  font-size: 1.5rem; 
+  font-weight: 650;
+}
