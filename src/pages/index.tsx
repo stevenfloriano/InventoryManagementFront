@@ -68,7 +68,7 @@ export default function LoginPage() {
     try {
       const token = sessionStorage.getItem('Token');
       const tokenData = JSON.parse(token ? token : JSON.stringify(initialToken));
-      console.log(tokenData);
+      
       if (tokenData.dateCreated) {
         const tokenDate = new Date(tokenData.dateCreated);
         const now = new Date();

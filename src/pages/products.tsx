@@ -75,7 +75,6 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       const response = await axiosClient.get("/products");
-      console.log("Fetched products:", response.data);
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);

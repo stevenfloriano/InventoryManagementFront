@@ -20,7 +20,7 @@ const initialSaleData = {
   total: 0,
   note: "",
   saleDetails: [
-    { productId: null, quantity: 1, value: 0}
+    { productId: null, quantity: 1, value: 0 }
   ]
 }
 
@@ -49,12 +49,20 @@ export default function SalesPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const total = formData.saleDetails.reduce(
+      (acc, item) => acc + (Number(item.quantity) * Number(item.value || 0)),
+      0
+    );
+    setFormData((prev) => ({ ...prev, total }));
+  }, [formData.saleDetails]);
+
   const handleAddItem = () => {
     setFormData((prev) => ({
       ...prev,
       saleDetails: [
-        { productId: 0, quantity: 1, value: 0 },
         ...prev.saleDetails,
+        { productId: null, quantity: 1, value: 0 },
       ],
     }));
   };
@@ -68,7 +76,19 @@ export default function SalesPage() {
   const handleItemChange = (index: number, field: string, value: any) => {
     const updated: any = [...formData.saleDetails];
     updated[index][field] = value;
-    setFormData((prev) => ({ ...prev, saleDetails: updated }));
+
+    if (field === "quantity" || field === "value") {
+      const quantity = Number(updated[index].quantity) || 0;
+      const unitValue = Number(updated[index].value) || 0;
+      updated[index].total = quantity * unitValue;
+    }
+
+    const total = updated.reduce(
+      (acc: any, item: any) => acc + (Number(item.quantity) * Number(item.value || 0)),
+      0
+    );
+
+    setFormData((prev) => ({ ...prev, saleDetails: updated, total }));
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -118,7 +138,7 @@ export default function SalesPage() {
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Select 
               className="min-w-[300px] flex-1" 
-              label="cliente" 
+              label="Cliente" 
               placeholder="Selecciona un cliente"
               onSelectionChange={(val) => setFormData({ ...formData, customerId: Number(Array.from(val)[0]) })}
             >
@@ -135,10 +155,9 @@ export default function SalesPage() {
               type="date"
               errorMessage="Ingresa la fecha"
               value={new Date(formData.date).toISOString().split('T')[0]}
-              onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, date: new Date(e.target.value) })) }
             />
             <Input
-              isRequired
               labelPlacement="inside"
               label="Observaciones"
               name="note"
@@ -152,18 +171,27 @@ export default function SalesPage() {
           
           <div style={{width: '100%'}}>
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold">Conexiones BD</h3>
+              <h3 className="text-lg font-semibold">Articulos</h3>
               <Button isIconOnly type="button" color="primary" onClick={handleAddItem}>
                 <PlusIcon className="w-5 h-5" />
               </Button>
             </div>
             {formData.saleDetails.map((saleDetail: SaleDetailProps, index: number) => (
-              <div className="rounded-xl mb-4 flex flex-wrap gap-4 items-end">
+              <div key={`sale-detail-${index}`} className="rounded-xl mb-4 flex flex-wrap gap-4 items-end">
                 <Select 
                   className="min-w-[150px] flex-1" 
                   label="Artículo" 
                   placeholder="Selecciona un artículo"
-                  onSelectionChange={(val) => setFormData({ ...formData, saleDetails: formData.saleDetails.map((item, i) => i === index ? { ...item, productId: Number(Array.from(val)[0]) } : item) })}
+                  onSelectionChange={(val) => {
+                    const selectedId = Number(Array.from(val)[0]);
+                    const selectedProduct = products.find(p => p.id === selectedId);
+                    setFormData({
+                      ...formData,
+                      saleDetails: formData.saleDetails.map((item, i) =>
+                        i === index ? { ...item, productId: selectedId, value: selectedProduct ? selectedProduct.price : item.value } : item
+                      )
+                    });
+                  }}
                 >
                   {products.map((product) => (
                     <SelectItem key={product.id} >{product.name}</SelectItem>
@@ -172,16 +200,18 @@ export default function SalesPage() {
                 <Input
                   label="Cantidad"
                   placeholder="Ej: 10"
-                  value={saleDetail.quantity}
-                  onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                  className="min-w-[150px] flex-1"
+                  type="number"
+                  value={saleDetail.quantity?.toString() ?? ""}
+                  onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
+                  className="max-w-[200px] flex-1"
                 />
                 <Input
-                  label="Valor"
+                  label="Valor Unitario"
                   placeholder="Ej: 10"
-                  value={saleDetail.value}
-                  onChange={(e) => handleItemChange(index, "value", e.target.value)}
-                  className="min-w-[150px] flex-1"
+                  type="number"
+                  value={saleDetail.value?.toString() ?? ""}
+                  onChange={(e) => handleItemChange(index, "value", Number(e.target.value))}
+                  className="max-w-[300px] flex-1"
                 />
                 <ButtonGroup>
                   { saleDetail.productId && (
@@ -200,7 +230,14 @@ export default function SalesPage() {
                 </ButtonGroup>
               </div>
             ))}
-
+            <div className="flex justify-end w-full mt-4">
+              <Input
+                label="Total"
+                value={formData.total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
+                readOnly
+                className="max-w-[400px]"
+              />
+            </div>
           </div >
           
           <div className="w-full">

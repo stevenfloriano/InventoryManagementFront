@@ -24,6 +24,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     console.log("Logging out...");
     sessionStorage.removeItem("user");
+    sessionStorage.removeItem("Token");
     navigate("/");
   };
 
@@ -62,11 +63,8 @@ export const Navbar = () => {
                 color="foreground"
                 href={item.href}
                 onClick={(e) => {
-                  {item.label === "Salir" ? (
-                    <button onClick={handleLogout}>{item.label}</button>
-                  ) : (
-                    <a href={item.href}>{item.label}</a>
-                  )}
+                  e.preventDefault();
+                  item.label === "Salir" ? handleLogout() : navigate(item.href);
                 }}
               >
                 {item.label}

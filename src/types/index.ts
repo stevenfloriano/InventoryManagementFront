@@ -34,26 +34,16 @@ export type UserProps = {
   isActive: boolean;
 };
 
-export type ConnectionProps = {
-  id: string;
-  company: string;
-  engine: string;
-  server: string;
-  user: string;
-  password: string;
-  dbName: string;
-};
-
 export type SaleProps = {
   date: Date;
-  customerId: number;
+  customerId: number | null;
   total: number;
   note: string;
   saleDetails: SaleDetailProps[];
 };
 
 export type SaleDetailProps = {
-  productId: number;
+  productId: number | null;
   quantity: number;
   value: number;
 };
