@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { ToastProvider } from "@heroui/react"
-import IndexPage from "@/pages/index";
+import LoginPage from "@/pages/index";
 import HomePage from "@/pages/home";
 import CustomersPage from "@/pages/customers";
 import ProductsPage from "@/pages/products";
@@ -15,7 +15,7 @@ function App() {
     <>
       <ToastProvider />
       <Routes>
-        <Route element={<IndexPage />} path="/" />
+        <Route element={<LoginPage />} path="/" />
         <Route path="/home" element={<PrivateRoute><HomePage /></PrivateRoute>} />
         <Route path="/products" element={<PrivateRoute><ProductsPage /></PrivateRoute>} />
         <Route path="/customers" element={<PrivateRoute><CustomersPage /></PrivateRoute>} />
